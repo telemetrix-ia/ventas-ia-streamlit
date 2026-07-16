@@ -10,6 +10,7 @@ import pandas as pd
 import os
 import json
 import re
+import sys
 import getpass
 import time
 from datetime import datetime, timedelta
@@ -244,7 +245,12 @@ class MCPAgent:
         verbose: bool = False,
         max_iterations: int = 8
     ):
-        self.api_key = api_key or os.environ.get("OPENROUTER_API_KEY") or getpass.getpass("OpenRouter API Key: ")
+        self.api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
+        if not self.api_key:
+            if sys.stdin.isatty():
+                self.api_key = getpass.getpass("OpenRouter API Key: ")
+            else:
+                raise ValueError("OPENROUTER_API_KEY no configurada. Pasa la key como argumento, variable de entorno, o en Streamlit Secrets.")
         os.environ["OPENROUTER_API_KEY"] = self.api_key
 
         self.llm = ChatOpenAI(

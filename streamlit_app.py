@@ -80,11 +80,15 @@ st.markdown("""
 # ============================================================
 
 @st.cache_resource
-def init_agent():
-    return MCPAgent(verbose=False)
+def init_agent(api_key: str):
+    return MCPAgent(api_key=api_key, verbose=False)
 
 if "agent" not in st.session_state:
-    st.session_state.agent = init_agent()
+    api_key = st.secrets.get("OPENROUTER_API_KEY") or os.environ.get("OPENROUTER_API_KEY")
+    if not api_key:
+        st.error("⚠️ No se encontró OPENROUTER_API_KEY. Configúrala en Secrets de Streamlit Cloud o como variable de entorno.")
+        st.stop()
+    st.session_state.agent = init_agent(api_key)
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
